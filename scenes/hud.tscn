@@ -1,0 +1,382 @@
+[gd_scene load_steps=10 format=3]
+
+[ext_resource type="Script" path="res://scripts/hud.gd" id="1_hud"]
+[ext_resource type="Script" path="res://scripts/look_area.gd" id="2_look"]
+[ext_resource type="Script" path="res://scripts/joystick.gd" id="3_stick"]
+[ext_resource type="Script" path="res://scripts/inventory_ui.gd" id="4_inv"]
+[ext_resource type="Script" path="res://scripts/journal_ui.gd" id="5_journal"]
+
+[sub_resource type="StyleBoxFlat" id="SB_panel"]
+bg_color = Color(0.07, 0.08, 0.09, 0.92)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+
+[sub_resource type="StyleBoxFlat" id="SB_circle_base"]
+bg_color = Color(1, 1, 1, 0.16)
+corner_radius_top_left = 110
+corner_radius_top_right = 110
+corner_radius_bottom_right = 110
+corner_radius_bottom_left = 110
+
+[sub_resource type="StyleBoxFlat" id="SB_circle_knob"]
+bg_color = Color(1, 1, 1, 0.55)
+corner_radius_top_left = 48
+corner_radius_top_right = 48
+corner_radius_bottom_right = 48
+corner_radius_bottom_left = 48
+
+[sub_resource type="StyleBoxFlat" id="SB_accent"]
+bg_color = Color(0.92, 0.75, 0.2, 0.92)
+corner_radius_top_left = 14
+corner_radius_top_right = 14
+corner_radius_bottom_right = 14
+corner_radius_bottom_left = 14
+
+[node name="HUD" type="CanvasLayer"]
+script = ExtResource("1_hud")
+
+[node name="Root" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="LookArea" type="Control" parent="Root"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 0
+script = ExtResource("2_look")
+
+[node name="JoystickArea" type="Control" parent="Root"]
+layout_mode = 1
+anchor_top = 0.2
+anchor_right = 0.45
+anchor_bottom = 1.0
+mouse_filter = 0
+script = ExtResource("3_stick")
+
+[node name="Base" type="Panel" parent="Root/JoystickArea"]
+layout_mode = 0
+offset_left = 40.0
+offset_top = 240.0
+offset_right = 260.0
+offset_bottom = 460.0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("SB_circle_base")
+visible = false
+
+[node name="Knob" type="Panel" parent="Root/JoystickArea"]
+layout_mode = 0
+offset_left = 110.0
+offset_top = 310.0
+offset_right = 210.0
+offset_bottom = 410.0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("SB_circle_knob")
+visible = false
+
+[node name="Crosshair" type="ColorRect" parent="Root"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -5.0
+offset_top = -5.0
+offset_right = 5.0
+offset_bottom = 5.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(1, 1, 1, 0.9)
+
+[node name="InteractButton" type="Button" parent="Root"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -150.0
+offset_top = 48.0
+offset_right = 150.0
+offset_bottom = 116.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(0.12, 0.1, 0.02, 1)
+theme_override_font_sizes/font_size = 26
+theme_override_styles/normal = SubResource("SB_accent")
+theme_override_styles/hover = SubResource("SB_accent")
+theme_override_styles/pressed = SubResource("SB_accent")
+theme_override_styles/focus = SubResource("SB_accent")
+text = "ВЗЯТЬ"
+visible = false
+
+[node name="StaminaBar" type="ProgressBar" parent="Root"]
+modulate = Color(1, 1, 1, 0.7)
+layout_mode = 1
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 24.0
+offset_top = -58.0
+offset_right = 300.0
+offset_bottom = -40.0
+grow_vertical = 0
+mouse_filter = 2
+max_value = 100.0
+value = 100.0
+show_percentage = false
+
+[node name="JournalButton" type="Button" parent="Root"]
+modulate = Color(1, 1, 1, 0.8)
+layout_mode = 1
+offset_left = 20.0
+offset_top = 20.0
+offset_right = 88.0
+offset_bottom = 88.0
+theme_override_font_sizes/font_size = 13
+text = "ЖУРНАЛ"
+
+[node name="BackpackButton" type="Button" parent="Root"]
+modulate = Color(1, 1, 1, 0.8)
+layout_mode = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -94.0
+offset_top = 20.0
+offset_right = -20.0
+offset_bottom = 88.0
+grow_horizontal = 0
+theme_override_font_sizes/font_size = 13
+text = "РЮКЗАК"
+
+[node name="SprintButton" type="Button" parent="Root"]
+modulate = Color(1, 1, 1, 0.8)
+layout_mode = 1
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 28.0
+offset_top = -178.0
+offset_right = 96.0
+offset_bottom = -110.0
+grow_vertical = 0
+toggle_mode = true
+theme_override_font_sizes/font_size = 18
+text = "БЕГ"
+
+[node name="JumpButton" type="Button" parent="Root"]
+modulate = Color(1, 1, 1, 0.8)
+layout_mode = 1
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -118.0
+offset_top = -118.0
+offset_right = -26.0
+offset_bottom = -26.0
+grow_horizontal = 0
+grow_vertical = 0
+theme_override_font_sizes/font_size = 14
+text = "ПРЫЖОК"
+
+[node name="FlashlightButton" type="Button" parent="Root"]
+modulate = Color(1, 1, 1, 0.8)
+layout_mode = 1
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -118.0
+offset_top = -220.0
+offset_right = -26.0
+offset_bottom = -138.0
+grow_horizontal = 0
+grow_vertical = 0
+theme_override_font_sizes/font_size = 13
+text = "ФОНАРЬ"
+
+[node name="MessageLabel" type="Label" parent="Root"]
+layout_mode = 1
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -430.0
+offset_top = 98.0
+offset_right = 430.0
+offset_bottom = 180.0
+grow_horizontal = 2
+mouse_filter = 2
+theme_override_font_sizes/font_size = 19
+text = ""
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="InventoryPanel" type="Panel" parent="Root"]
+visible = false
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -330.0
+offset_top = -280.0
+offset_right = 330.0
+offset_bottom = 280.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("SB_panel")
+script = ExtResource("4_inv")
+
+[node name="Margin" type="MarginContainer" parent="Root/InventoryPanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 18
+theme_override_constants/margin_top = 14
+theme_override_constants/margin_right = 18
+theme_override_constants/margin_bottom = 16
+
+[node name="VBox" type="VBoxContainer" parent="Root/InventoryPanel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Header" type="HBoxContainer" parent="Root/InventoryPanel/Margin/VBox"]
+layout_mode = 2
+
+[node name="Title" type="Label" parent="Root/InventoryPanel/Margin/VBox/Header"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 26
+text = "РЮКЗАК"
+
+[node name="InvCloseButton" type="Button" parent="Root/InventoryPanel/Margin/VBox/Header"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(48, 48)
+theme_override_font_sizes/font_size = 22
+text = "×"
+
+[node name="InvSelected" type="Label" parent="Root/InventoryPanel/Margin/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = "Нажмите на предмет, чтобы выбрать его"
+
+[node name="Scroll" type="ScrollContainer" parent="Root/InventoryPanel/Margin/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+custom_minimum_size = Vector2(0, 220)
+
+[node name="InvRows" type="VBoxContainer" parent="Root/InventoryPanel/Margin/VBox/Scroll"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 6
+
+[node name="InvEmpty" type="Label" parent="Root/InventoryPanel/Margin/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+modulate = Color(1, 1, 1, 0.6)
+text = "Рюкзак пуст"
+
+[node name="Actions" type="HBoxContainer" parent="Root/InventoryPanel/Margin/VBox"]
+layout_mode = 2
+alignment = 1
+theme_override_constants/separation = 14
+
+[node name="InvUse" type="Button" parent="Root/InventoryPanel/Margin/VBox/Actions"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(200, 58)
+theme_override_font_sizes/font_size = 18
+text = "ИСПОЛЬЗОВАТЬ"
+
+[node name="InvDrop" type="Button" parent="Root/InventoryPanel/Margin/VBox/Actions"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(200, 58)
+theme_override_font_sizes/font_size = 18
+text = "ВЫБРОСИТЬ"
+
+[node name="JournalPanel" type="Panel" parent="Root"]
+visible = false
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -300.0
+offset_top = -250.0
+offset_right = 300.0
+offset_bottom = 250.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("SB_panel")
+script = ExtResource("5_journal")
+
+[node name="Margin" type="MarginContainer" parent="Root/JournalPanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 18
+theme_override_constants/margin_top = 14
+theme_override_constants/margin_right = 18
+theme_override_constants/margin_bottom = 16
+
+[node name="VBox" type="VBoxContainer" parent="Root/JournalPanel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Header" type="HBoxContainer" parent="Root/JournalPanel/Margin/VBox"]
+layout_mode = 2
+
+[node name="Title" type="Label" parent="Root/JournalPanel/Margin/VBox/Header"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 26
+text = "ЖУРНАЛ ЗАДАНИЙ"
+
+[node name="JournalCloseButton" type="Button" parent="Root/JournalPanel/Margin/VBox/Header"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(48, 48)
+theme_override_font_sizes/font_size = 22
+text = "×"
+
+[node name="Scroll" type="ScrollContainer" parent="Root/JournalPanel/Margin/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+custom_minimum_size = Vector2(0, 320)
+
+[node name="QuestRows" type="VBoxContainer" parent="Root/JournalPanel/Margin/VBox/Scroll"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 8
+
+[node name="Hint" type="Label" parent="Root/JournalPanel/Margin/VBox"]
+layout_mode = 2
+modulate = Color(1, 1, 1, 0.55)
+theme_override_font_sizes/font_size = 14
+text = "Задания обновляются автоматически"
