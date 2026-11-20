@@ -46,8 +46,12 @@ func _on_joystick_moved(strength: Vector2) -> void:
 
 
 func _on_target_changed(target: Node) -> void:
-	if target is Interactable:
-		var prompt := target.get_prompt()
+	# Явное приведение: Godot 4.7 не может вывести тип "prompt", если класс
+	# Interactable на момент разбора ещё не резолвится, поэтому не полагаемся
+	# на := и is, а делаем безопасный cast.
+	var target_object := target as Interactable
+	if target_object != null:
+		var prompt: String = target_object.get_prompt()
 		interact_button.visible = not prompt.is_empty()
 		interact_button.text = prompt.to_upper()
 	else:
