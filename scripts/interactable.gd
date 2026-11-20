@@ -1,12 +1,10 @@
 class_name Interactable
 extends StaticBody3D
 
-@export var prompt: String = "Открыть"
-
+@export var prompt_text: String = "Interact"
 
 func get_prompt() -> String:
-	return prompt
+    return prompt_text
 
-
-func interact(_player: Node3D) -> void:
-	pass
+func interact(player: Node) -> void:
+    pass
