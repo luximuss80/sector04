@@ -1,97 +1,66 @@
-class_name Player
 extends CharacterBody3D
 
-signal target_changed(target: Node)
+const SPEED := 4.0
+const SPRINT_SPEED := 7.0
+const JUMP_VELOCITY := 4.5
+const MOUSE_SENS := 0.003
+const STAMINA_DRAIN := 25.0
+const STAMINA_REGEN := 15.0
 
-@export var walk_speed: float = 3.4
-@export var sprint_speed: float = 6.0
-@export var jump_velocity: float = 4.6
-@export var gravity: float = 12.0
-@export var touch_sensitivity: float = 0.0035
-@export var mouse_sensitivity: float = 0.0025
-@export var stamina_drain_per_sec: float = 20.0
-@export var stamina_regen_per_sec: float = 12.0
+var gravity: float = ProjectSettings.get_setting("physics/3d/default_gravity")
+var move_touch := Vector2.ZERO
 
-@onready var head: Camera3D = $Head
-@onready var ray: RayCast3D = $Head/RayCast
-@onready var flashlight: SpotLight3D = $Head/Flashlight
-
-var joystick_vector: Vector2 = Vector2.ZERO
-var sprint_held: bool = false
-
-var _current_target: Node = null
-var _jump_requested: bool = false
-
+@onready var head: Node3D = $Head
+@onready var ray: RayCast3D = $Head/Camera3D/RayCast3D
 
 func _ready() -> void:
-	Game.stats_changed.emit()
+    add_to_group("player")
 
+func set_move_touch(v: Vector2) -> void:
+    move_touch = v
+
+func do_jump() -> void:
+    if is_on_floor():
+        velocity.y = JUMP_VELOCITY
 
 func _unhandled_input(event: InputEvent) -> void:
-	if event.is_action_pressed("interact"):
-		interact_current()
-	elif event is InputEventMouseMotion and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
-		rotate_y(-event.relative.x * mouse_sensitivity)
-		head.rotation.x = clampf(head.rotation.x - event.relative.y * mouse_sensitivity, -1.4, 1.4)
-
-
-func apply_look(delta_pixels: Vector2) -> void:
-	rotate_y(-delta_pixels.x * touch_sensitivity)
-	head.rotation.x = clampf(head.rotation.x - delta_pixels.y * touch_sensitivity, -1.4, 1.4)
-
-
-func toggle_flashlight() -> void:
-	flashlight.visible = not flashlight.visible
-
-
-func request_jump() -> void:
-	_jump_requested = true
-
-
-func interact_current() -> void:
-	if _current_target is Interactable:
-		_current_target.interact(self)
-		target_changed.emit(_current_target)
-
+    if event is InputEventMouseMotion and Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT):
+        rotate_y(-event.relative.x * MOUSE_SENS)
+        head.rotate_x(-event.relative.y * MOUSE_SENS)
+        head.rotation.x = clampf(head.rotation.x, -1.4, 1.4)
 
 func _physics_process(delta: float) -> void:
-	_move(delta)
-	_update_target()
+    if not is_on_floor():
+        velocity.y -= gravity * delta
 
+    var input_vec := move_touch
+    var kb := Input.get_vector("ui_left", "ui_right", "ui_up", "ui_down")
+    if kb != Vector2.ZERO:
+        input_vec = kb
 
-func _move(delta: float) -> void:
-	if not is_on_floor():
-		velocity.y -= gravity * delta
-	var input_2d := Input.get_vector("move_left", "move_right", "move_forward", "move_back") + joystick_vector
-	if input_2d.length() > 1.0:
-		input_2d = input_2d.normalized()
-	var direction := global_transform.basis * Vector3(input_2d.x, 0.0, input_2d.y)
-	direction.y = 0.0
-	var moving: bool = direction.length() > 0.05
-	var sprinting: bool = (sprint_held or Input.is_action_pressed("sprint")) and moving and Game.stamina > 1.0
-	if sprinting:
-		Game.stamina = maxf(Game.stamina - stamina_drain_per_sec * delta, 0.0)
-		Game.stats_changed.emit()
-	elif Game.stamina < Game.max_stamina:
-		Game.stamina = minf(Game.stamina + stamina_regen_per_sec * delta, Game.max_stamina)
-		Game.stats_changed.emit()
-	var speed := sprint_speed if sprinting else walk_speed
-	if moving:
-		var normalized_dir := direction.normalized()
-		velocity.x = normalized_dir.x * speed
-		velocity.z = normalized_dir.z * speed
-	else:
-		velocity.x = move_toward(velocity.x, 0.0, walk_speed * 8.0 * delta)
-		velocity.z = move_toward(velocity.z, 0.0, walk_speed * 8.0 * delta)
-	if Input.is_action_just_pressed("jump") or _jump_requested:
-		_jump_requested = false
-		if is_on_floor():
-			velocity.y = jump_velocity
-	move_and_slide()
+    var moving := input_vec.length() > 0.8
+    if moving and Game.stamina > 0.0:
+        Game.set_stamina(Game.stamina - STAMINA_DRAIN * delta)
+    else:
+        Game.set_stamina(Game.stamina + STAMINA_REGEN * delta)
 
+    var speed := SPRINT_SPEED if (moving and Game.stamina > 0.0) else SPEED
+    var dir := (transform.basis * Vector3(input_vec.x, 0.0, input_vec.y)).normalized()
+    if dir != Vector3.ZERO:
+        velocity.x = dir.x * speed
+        velocity.z = dir.z * speed
+    else:
+        velocity.x = move_toward(velocity.x, 0.0, SPEED)
+        velocity.z = move_toward(velocity.z, 0.0, SPEED)
 
-func _update_target() -> void:
-	var collider: Object = ray.get_collider() if ray.is_colliding() else null
-	if collider != _current_target:
-		_current_target = collider
-		target_changed.emit(_current_target)
+    move_and_slide()
+
+func try_interact() -> void:
+    if not ray.is_colliding():
+        return
+    var target_object := ray.get_collider() as Interactable
+    if target_object == null:
+        return
+    var prompt: String = target_object.get_prompt()
+    Game.post_message(prompt)
+    target_object.interact(self)
